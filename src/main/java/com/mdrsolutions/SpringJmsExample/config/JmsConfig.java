@@ -6,6 +6,7 @@ import com.mdrsolutions.SpringJmsExample.pojos.BookOrder;
 import com.mdrsolutions.SpringJmsExample.pojos.Customer;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
@@ -13,6 +14,7 @@ import org.springframework.jms.annotation.JmsListenerConfigurer;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerEndpointRegistrar;
 import org.springframework.jms.config.SimpleJmsListenerEndpoint;
+import org.springframework.jms.connection.SingleConnectionFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -25,8 +27,17 @@ import javax.jms.ConnectionFactory;
 @Configuration
 public class JmsConfig /*implements JmsListenerConfigurer*/ {
 
-    @Autowired
-    private ConnectionFactory connectionFactory;
+    @Value("${spring.activemq.broker-url}")
+    private String brokerUrl;
+
+    @Value("${spring.activemq.user}")
+    private String user;
+
+    @Value("${spring.activemq.password}")
+    private String password;
+
+    /*@Autowired
+    private ConnectionFactory connectionFactory;*/
 
     @Bean
     public MessageConverter jacksonJmsMessageConverter(){
@@ -50,11 +61,14 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
         return marshaller;
     }
 
-    /*@Bean
-    public ActiveMQConnectionFactory connectionFactory(){
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("admin","admin","tcp://localhost:61616");
-        return factory;
-    }*/
+    @Bean
+    public SingleConnectionFactory connectionFactory(){
+        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(user,password,brokerUrl);
+        SingleConnectionFactory singleConnectionFactory = new SingleConnectionFactory(factory);
+        singleConnectionFactory.setReconnectOnException(true);
+        singleConnectionFactory.setClientId("myClientId");
+        return singleConnectionFactory;
+    }
 
     /*@Bean
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(){
