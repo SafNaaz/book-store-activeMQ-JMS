@@ -5,6 +5,8 @@ import com.mdrsolutions.SpringJmsExample.pojos.Book;
 import com.mdrsolutions.SpringJmsExample.pojos.BookOrder;
 import com.mdrsolutions.SpringJmsExample.pojos.Customer;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,18 +17,25 @@ import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerEndpointRegistrar;
 import org.springframework.jms.config.SimpleJmsListenerEndpoint;
 import org.springframework.jms.connection.CachingConnectionFactory;
+import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.connection.SingleConnectionFactory;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.oxm.xstream.XStreamMarshaller;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.jms.ConnectionFactory;
 
+@EnableTransactionManagement
 @EnableJms
 @Configuration
 public class JmsConfig /*implements JmsListenerConfigurer*/ {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JmsConfig.class);
 
     @Value("${spring.activemq.broker-url}")
     private String brokerUrl;
@@ -72,14 +81,18 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
         return singleConnectionFactory;
     }
 
-    /*@Bean
+    @Bean
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(){
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory());
         factory.setMessageConverter(jacksonJmsMessageConverter());
 //        factory.setMessageConverter(xmlMarshallingMessageConverter());
+        factory.setTransactionManager(jmsTransactionManager());
+        factory.setErrorHandler(t -> {
+            LOGGER.info("Handing error in listener for messages , error "+t.getMessage());
+        });
         return factory;
-    }*/
+    }
 
     /*@Bean
     public BookOrderProcessingMessageListener jmsMessageListener(){
@@ -98,4 +111,18 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
         registrar.setContainerFactory(jmsListenerContainerFactory());
         registrar.registerEndpoint(endpoint, jmsListenerContainerFactory());
     }*/
+
+    @Bean
+    public PlatformTransactionManager jmsTransactionManager(){
+        return new JmsTransactionManager(connectionFactory());
+    }
+
+    @Bean
+    public JmsTemplate jmsTemplate(){
+        JmsTemplate jmsTemplate = new JmsTemplate(connectionFactory());
+        jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
+        jmsTemplate.setDeliveryPersistent(true);
+        jmsTemplate.setSessionTransacted(true);
+        return jmsTemplate;
+    }
 }
