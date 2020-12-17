@@ -5,6 +5,7 @@ import com.mdrsolutions.SpringJmsExample.pojos.Book;
 import com.mdrsolutions.SpringJmsExample.pojos.BookOrder;
 import com.mdrsolutions.SpringJmsExample.pojos.Customer;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
@@ -18,9 +19,14 @@ import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 
+import javax.jms.ConnectionFactory;
+
 @EnableJms
 @Configuration
-public class JmsConfig implements JmsListenerConfigurer {
+public class JmsConfig /*implements JmsListenerConfigurer*/ {
+
+    @Autowired
+    private ConnectionFactory connectionFactory;
 
     @Bean
     public MessageConverter jacksonJmsMessageConverter(){
@@ -44,28 +50,28 @@ public class JmsConfig implements JmsListenerConfigurer {
         return marshaller;
     }
 
-    @Bean
+    /*@Bean
     public ActiveMQConnectionFactory connectionFactory(){
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("admin","admin","tcp://localhost:61616");
         return factory;
-    }
+    }*/
 
-    @Bean
+    /*@Bean
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(){
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory());
         factory.setMessageConverter(jacksonJmsMessageConverter());
 //        factory.setMessageConverter(xmlMarshallingMessageConverter());
         return factory;
-    }
+    }*/
 
-    @Bean
+    /*@Bean
     public BookOrderProcessingMessageListener jmsMessageListener(){
         BookOrderProcessingMessageListener listener = new BookOrderProcessingMessageListener();
         return listener;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void configureJmsListeners(JmsListenerEndpointRegistrar registrar) {
         SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
         endpoint.setMessageListener(jmsMessageListener());
@@ -75,5 +81,5 @@ public class JmsConfig implements JmsListenerConfigurer {
         endpoint.setConcurrency("1");
         registrar.setContainerFactory(jmsListenerContainerFactory());
         registrar.registerEndpoint(endpoint, jmsListenerContainerFactory());
-    }
+    }*/
 }
