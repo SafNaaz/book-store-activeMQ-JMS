@@ -12,7 +12,6 @@ import org.springframework.jms.annotation.JmsListenerConfigurer;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerEndpointRegistrar;
 import org.springframework.jms.config.SimpleJmsListenerEndpoint;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -23,7 +22,7 @@ import org.springframework.oxm.xstream.XStreamMarshaller;
 @Configuration
 public class JmsConfig implements JmsListenerConfigurer {
 
-//    @Bean
+    @Bean
     public MessageConverter jacksonJmsMessageConverter(){
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.TEXT);
@@ -31,14 +30,14 @@ public class JmsConfig implements JmsListenerConfigurer {
         return converter;
     }
 
-    @Bean
+//    @Bean
     public MessageConverter xmlMarshallingMessageConverter(){
         MarshallingMessageConverter converter = new MarshallingMessageConverter(xmlMarshaller());
         converter.setTargetType(MessageType.TEXT);
         return converter;
     }
 
-    @Bean
+//    @Bean
     public XStreamMarshaller xmlMarshaller(){
         XStreamMarshaller marshaller = new XStreamMarshaller();
         marshaller.setSupportedClasses(Book.class, Customer.class, BookOrder.class);
@@ -55,8 +54,8 @@ public class JmsConfig implements JmsListenerConfigurer {
     public DefaultJmsListenerContainerFactory jmsListenerContainerFactory(){
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory());
-//        factory.setMessageConverter(jacksonJmsMessageConverter());
-        factory.setMessageConverter(xmlMarshallingMessageConverter());
+        factory.setMessageConverter(jacksonJmsMessageConverter());
+//        factory.setMessageConverter(xmlMarshallingMessageConverter());
         return factory;
     }
 
