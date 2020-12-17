@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -22,11 +23,11 @@ public class WareHouseReceiverService {
 
     @JmsListener(destination = "book.order.queue")
     @SendTo("book.order.processed.queue")
-    public ProcessedBookOrder receive(@Payload BookOrder bookOrder,
-                                      @Header(name="orderState") String orderState,
-                                      @Header(name="bookOrderId") String bookOrderId,
-                                      @Header(name="storeId") String storeId,
-                                      MessageHeaders messageHeaders){
+    public Message<ProcessedBookOrder> receive(@Payload BookOrder bookOrder,
+                                              @Header(name="orderState") String orderState,
+                                              @Header(name="bookOrderId") String bookOrderId,
+                                              @Header(name="storeId") String storeId,
+                                              MessageHeaders messageHeaders){
         LOGGER.info("received a message");
         LOGGER.info("Message is == "+bookOrder);
 
