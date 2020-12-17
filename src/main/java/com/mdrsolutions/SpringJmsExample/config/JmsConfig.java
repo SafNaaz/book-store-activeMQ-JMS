@@ -14,6 +14,7 @@ import org.springframework.jms.annotation.JmsListenerConfigurer;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerEndpointRegistrar;
 import org.springframework.jms.config.SimpleJmsListenerEndpoint;
+import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.connection.SingleConnectionFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MarshallingMessageConverter;
@@ -62,11 +63,12 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
     }
 
     @Bean
-    public SingleConnectionFactory connectionFactory(){
+    public CachingConnectionFactory connectionFactory(){
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(user,password,brokerUrl);
-        SingleConnectionFactory singleConnectionFactory = new SingleConnectionFactory(factory);
-        singleConnectionFactory.setReconnectOnException(true);
-        singleConnectionFactory.setClientId("myClientId");
+        CachingConnectionFactory singleConnectionFactory = new CachingConnectionFactory(factory);
+//        singleConnectionFactory.setReconnectOnException(true);
+        singleConnectionFactory.setClientId("StoreFront");
+        singleConnectionFactory.setSessionCacheSize(100);
         return singleConnectionFactory;
     }
 
