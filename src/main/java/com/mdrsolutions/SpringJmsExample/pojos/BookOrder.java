@@ -1,5 +1,6 @@
 package com.mdrsolutions.SpringJmsExample.pojos;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BookOrder {
@@ -8,6 +9,7 @@ public class BookOrder {
     private final Book book;
     private final Customer customer;
 
+    @JsonCreator
     public BookOrder(
             @JsonProperty("bookOrderId") String bookOrderId,
             @JsonProperty("book") Book book,
