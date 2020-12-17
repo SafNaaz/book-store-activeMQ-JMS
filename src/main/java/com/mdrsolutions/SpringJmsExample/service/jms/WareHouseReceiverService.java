@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.jms.listener.adapter.JmsResponse;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -22,18 +23,17 @@ public class WareHouseReceiverService {
     WarehouseProcessingService warehouseProcessingService;
 
     @JmsListener(destination = "book.order.queue")
-    @SendTo("book.order.processed.queue")
-    public Message<ProcessedBookOrder> receive(@Payload BookOrder bookOrder,
-                                              @Header(name="orderState") String orderState,
-                                              @Header(name="bookOrderId") String bookOrderId,
-                                              @Header(name="storeId") String storeId,
-                                              MessageHeaders messageHeaders){
+//    @SendTo("book.order.processed.queue") -dynamically set destn
+    public JmsResponse<Message<ProcessedBookOrder>> receive(@Payload BookOrder bookOrder,
+                                                           @Header(name="orderState") String orderState,
+                                                           @Header(name="bookOrderId") String bookOrderId,
+                                                           @Header(name="storeId") String storeId){
         LOGGER.info("received a message");
         LOGGER.info("Message is == "+bookOrder);
 
         LOGGER.info("Message property orderState = {}, bookOrderId = {}, storeId = {}",
                 orderState, bookOrderId, storeId);
-        LOGGER.info("MessageHeaders = {}",messageHeaders);
+//        LOGGER.info("MessageHeaders = {}",messageHeaders);
 
         if(bookOrder.getBook().getTitle().startsWith("L")){
             throw new IllegalArgumentException("OrderId="+bookOrder.getBookOrderId()+"begins" +
