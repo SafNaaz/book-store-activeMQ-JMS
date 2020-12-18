@@ -76,7 +76,7 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(user,password,brokerUrl);
         CachingConnectionFactory singleConnectionFactory = new CachingConnectionFactory(factory);
 //        singleConnectionFactory.setReconnectOnException(true);
-        singleConnectionFactory.setClientId("StoreFront");
+        singleConnectionFactory.setClientId("StoreFront2");
         singleConnectionFactory.setSessionCacheSize(100);
         return singleConnectionFactory;
     }
@@ -88,6 +88,7 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
         factory.setMessageConverter(jacksonJmsMessageConverter());
 //        factory.setMessageConverter(xmlMarshallingMessageConverter());
         factory.setTransactionManager(jmsTransactionManager());
+        factory.setPubSubDomain(true);
         factory.setErrorHandler(t -> {
             LOGGER.info("Handing error in listener for messages , error "+t.getMessage());
         });
@@ -123,6 +124,7 @@ public class JmsConfig /*implements JmsListenerConfigurer*/ {
         jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
         jmsTemplate.setDeliveryPersistent(true);
         jmsTemplate.setSessionTransacted(true);
+        jmsTemplate.setPubSubDomain(true);
         return jmsTemplate;
     }
 }
